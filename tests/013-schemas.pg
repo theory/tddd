@@ -103,38 +103,37 @@ SELECT fk_ok(
     'nicks',    ARRAY[ 'name', 'server' ]
 );
 
-
-SELECT has_column( 'messages', 'command' );
-SELECT col_type_is( 'messages', 'command', 'citext' );
-SELECT col_not_null( 'messages', 'command' );
+SELECT has_column(      'messages', 'command' );
+SELECT col_type_is(     'messages', 'command', 'citext' );
+SELECT col_not_null(    'messages', 'command' );
 SELECT col_has_default( 'messages', 'command' );
-SELECT col_default_is( 'messages', 'command', 'say' );
+SELECT col_default_is(  'messages', 'command', 'say' );
 
-SELECT has_column( 'messages', 'body' );
-SELECT col_type_is( 'messages', 'body', 'text' );
-SELECT col_not_null( 'messages', 'body' );
+SELECT has_column(      'messages', 'body' );
+SELECT col_type_is(     'messages', 'body', 'text' );
+SELECT col_not_null(    'messages', 'body' );
 SELECT col_has_default( 'messages', 'body' );
-SELECT col_default_is( 'messages', 'body', '' );
+SELECT col_default_is(  'messages', 'body', '' );
 
-SELECT has_column( 'messages', 'seen_at' );
-SELECT col_type_is( 'messages', 'seen_at', 'timestamp with time zone' );
-SELECT col_not_null( 'messages', 'seen_at' );
+SELECT has_column(      'messages', 'seen_at' );
+SELECT col_type_is(     'messages', 'seen_at', 'timestamp with time zone' );
+SELECT col_not_null(    'messages', 'seen_at' );
 SELECT col_has_default( 'messages', 'seen_at' );
-SELECT col_default_is( 'messages', 'seen_at', 'clock_timestamp()' );
+SELECT col_default_is(  'messages', 'seen_at', 'clock_timestamp()' );
 
-SELECT has_column( 'messages', 'is_spam' );
-SELECT col_type_is( 'messages', 'is_spam', 'boolean' );
-SELECT col_not_null( 'messages', 'is_spam' );
+SELECT has_column(      'messages', 'is_spam' );
+SELECT col_type_is(     'messages', 'is_spam', 'boolean' );
+SELECT col_not_null(    'messages', 'is_spam' );
 SELECT col_has_default( 'messages', 'is_spam' );
-SELECT col_default_is( 'messages', 'is_spam', 'false' );
+SELECT col_default_is(  'messages', 'is_spam', 'false' );
 
-SELECT has_index( 'messages', 'message_seen_at_idx', 'seen_at'::name );
+SELECT has_index(     'messages', 'message_seen_at_idx', 'seen_at'::name );
 SELECT index_is_type( 'messages', 'message_seen_at_idx', 'btree' );
 
-SELECT has_index( 'messages', 'message_nick_fdx', ARRAY['server', 'nick'] );
+SELECT has_index(     'messages', 'message_nick_fdx', ARRAY['server', 'nick'] );
 SELECT index_is_type( 'messages', 'message_nick_fdx', 'btree' );
 
-SELECT has_index( 'messages', 'message_channel_fdx', ARRAY['server', 'channel'] );
+SELECT has_index(     'messages', 'message_channel_fdx', ARRAY['server', 'channel'] );
 SELECT index_is_type( 'messages', 'message_channel_fdx', 'btree' );
 
 SELECT finish();
