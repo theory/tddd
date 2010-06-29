@@ -3,7 +3,7 @@ SET search_path = public,tap,contrib,pg_catalog;
 BEGIN;
 SELECT plan( 1 );
 
-SELECT has_table( 'servers' );
+SELECT has_table( 'users' );
 
 SELECT finish();
 ROLLBACK;

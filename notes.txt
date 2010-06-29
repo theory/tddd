@@ -1,0 +1,145 @@
+Test Driven Database Development
+================================
+
+I. What is TDD?
+  A. Iterative development
+  B. Small steps
+  C. Promotes detailed design (Scott Ambler)
+  D. The cycle
+     1. Add a test
+     2. Run tests to see if new one fails.
+     3. Write some code
+     4. Run tests and see them succeed
+     5. Wash, rinse, repeat
+  E. Example
+
+II. Why TDDD? (Ambler)
+  A. Enables one to ensure quality of data
+    1. Data is important corporate asset
+    2. Many orgs suffer from data challenges
+    3. Makes sense to validate with testing
+    4. How many here have database test suite?
+  B. Enables validation of functionality in the DB
+    1. Mission-critical business logic implemented in the DB
+      a. Stored procedures
+      b. Functions
+      c. Triggers
+      d. Views
+  C. Concrete feedback to identify defects
+  D. Allows DBAs to work in evolutionary, iterative manner
+    a. Database refactoring
+    b. Tests easiest way to see if a change has broken something
+
+III. Questions from Scott Ambler
+  A. If you're implementing code in the DB in the form of stored procedures, triggers, ... shouldn't you test that code to the same level that you test your app code?
+  B. Think of all the data quality problems you've run into over the years. Wouldn't it have been nice if someone had originally tested and discovered those problems before you did?
+  C. Wouldn't it be nice to have a test suite to run so that you could determine how (and if) the DB actually works?
+
+III. How to do it
+  A. Why not app tests?
+    1. App unit tests should test the app
+    2. DB layer should be mocked
+    3. Otherwise it's an integration test
+  B. How?
+    1. PostgreSQL
+      a. pgTAP
+      b. EpicTest
+      c. pgUnit
+    2. MySQL
+      a. dbUnit
+      b. sqlUnit
+      c. http://www.longacre-scm.com/blog/index.php/2009/04/unit-tests-for-mysql-scripts/comment-page-1#comment-5733
+    3. SQLite
+      a. ???
+    4. Client Languages
+      a. Perl: Test::More
+      b. Ruby: 
+      c. Python:
+  C. Examples.
+
+What to test?
+ * Schema creation
+ * Business logic
+   + functions/procedures
+   + triggers
+   + views
+   + custom aggregates
+ * Refactorings
+ * Regressions
+ * Maintenance (esp. business logic)
+
+
+IV. Drive the design of the database schema
+  A. Focus on tests first
+  B. Must consider interface
+  C. Example
+
+V. Drive the design of the business logic interface
+  A. Focus on tests first
+  B. Must consider interface
+  C. Example
+
+
+
+V. Focus on the task at hand
+  A. First goal is to make tests pass
+  B. Ensures high coverage ratio
+  C. Result: they will detect any unexpected changes in the code's behaviour.
+  D. Gives greater confidence in the code.
+  E. Example
+
+VI. Reduced time investment
+  A. More time and lines of code required up-front
+  B. Lots of tests mean fewer bugs
+  C. Lots of tests lead to fewer regressions
+  D. Prevents endemic and expensive problems
+  E. Avoids lengthy and tedious debugging
+  F. Example
+
+VII. Greater Modularization
+  A. Must think of interfaces as small units for testing
+  B. Leads to looser coupling, clean interfaces
+  C. Mocking helps maintain this
+    1. Code must be able to switch between mocked and production interfaces
+  D. Example
+
+VIII. Refactoring
+  A. Simple change that improves design
+    1. Must retain behavioral semantics (as in code refactoring
+    2. Must retain informational semantics (special to DBs)
+    3. Examples
+      a. Rename column
+      b. Split table
+      c. Split column
+      d. Merge tables
+      e. Merge columns
+  B. 
+
+
+> The act of writing a unit test is more an act of design than of
+> verification. It is also more an act of documentation than of verification.
+> The act of writing a unit test closes a remarkable number of feedback loops,
+> the least of which is the one pertaining to the verification of function.
+  -- Robert C. Martin
+    "Agile Software Development Principals, Patterns, and Practices.
+
+> The implication is that the traditional approach of creating a (nearly)
+> complete set of logical and physical data models up front isn’t going to
+> work. The main advantage of the traditional approach is that it makes the
+> job of the database administrator (DBA) much easier – the data schema is put
+> into place early and that’s what people use. However there are several
+> disadvantages. First, it requires the designers to get it right early,
+> forcing you to identify most requirements even earlier in the project, and
+> therefore forcing your project team into taking a serial approach to
+> development. Second, it doesn’t support change easily. As your project
+> progresses your project stakeholders understanding of what they need will
+> evolve, motivating them to evolve their requirements. The business
+> environment will also change during your project, once again motivating your
+> stakeholders to evolve their requirements. In short the traditional way of
+> working simply doesn’t work well in an agile environment. If Agile DBAs are
+> going to work on and support project teams that are following agile
+> methodologies they need to find techniques that support working iteratively
+> and incrementally. My experience is that one critical technique is database
+> refactoring.
+
+-- http://www.agiledata.org/essays/databaseRefactoring.html
