@@ -1,0 +1,14 @@
+SET search_path = public,contrib,tap;
+
+BEGIN;
+SELECT plan( 5 );
+
+SELECT tables_are( 'public', ARRAY[ 'users' ] );
+
+SELECT has_table(  'users' );
+SELECT has_column( 'users', 'nickname'  );
+SELECT has_column( 'users', 'password'  );
+SELECT has_column( 'users', 'timestamp' );
+
+SELECT finish();
+ROLLBACK;
