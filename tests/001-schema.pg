@@ -1,4 +1,4 @@
-SET search_path = public,tap,contrib,pg_catalog;
+SET search_path = public,contrib,tap;
 
 BEGIN;
 
