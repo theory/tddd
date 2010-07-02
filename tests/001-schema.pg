@@ -1,4 +1,4 @@
-SET search_path = public,contrib,tap;
+SET search_path = public,tap;
 
 BEGIN;
 
