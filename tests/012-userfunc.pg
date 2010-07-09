@@ -7,6 +7,7 @@ SELECT * FROM no_plan();
 SELECT has_function('ins_user');
 SELECT has_function('ins_user', ARRAY['text', 'text']);
 SELECT function_returns('ins_user', 'void');
+SELECT function_lang_is('ins_user', 'sql');
 
 SELECT is(COUNT(*)::int, 0, 'Should have no users')
   FROM users;
@@ -58,9 +59,11 @@ SELECT is(
     'Password should match crypted password'
 ) FROM users;
 
+SELECT has_language('plpgsql');
 SELECT has_function('upd_pass');
 SELECT has_function('upd_pass', ARRAY['text', 'text', 'text']);
 SELECT function_returns('upd_pass', 'boolean');
+SELECT function_lang_is('upd_pass', 'plpgsql');
 
 SELECT ok(
     NOT upd_pass('nobody', 'foo', 'bar'),

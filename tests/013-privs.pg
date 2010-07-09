@@ -1,0 +1,11 @@
+SET search_path = public,tap;
+
+BEGIN;
+--SELECT plan( 5 );
+SELECT * FROM no_plan();
+
+SELECT has_role('flypperapp');
+SELECT isnt_superuser('flypperapp');
+
+SELECT finish();
+ROLLBACK;

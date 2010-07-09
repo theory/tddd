@@ -1,0 +1,17 @@
+SET search_path = public,tap;
+
+BEGIN;
+--SELECT plan( 5 );
+SELECT * FROM no_plan();
+
+SELECT has_role('flypperapp');
+SELECT isnt_superuser('flypperapp');
+
+SELECT volatility_is('ins_user', 'volatile');
+SELECT volatility_is('upd_pass', 'volatile');
+
+SELECT is_definer('ins_user');
+SELECT is_definer('upd_pass');
+
+SELECT finish();
+ROLLBACK;
