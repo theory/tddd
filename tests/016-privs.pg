@@ -1,0 +1,52 @@
+SET search_path = public,tap;
+
+BEGIN;
+--SELECT plan( 5 );
+SELECT * FROM no_plan();
+
+SELECT has_role('flypperapp');
+SELECT isnt_superuser('flypperapp');
+
+SELECT volatility_is('ins_user', 'volatile');
+SELECT volatility_is('upd_pass', 'volatile');
+
+SELECT is_definer('ins_user');
+SELECT is_definer('upd_pass');
+
+SELECT ok(
+    has_table_privilege('flypperapp', 'users', 'SELECT'),
+    'flypperapp should have SELECT priv on users table'
+);
+
+SELECT ok(
+    NOT has_table_privilege('flypperapp', 'users', priv),
+    'flypperapp should not have ' || priv || ' priv on users table'
+) FROM unnest(ARRAY[
+    'UPDATE',
+    'INSERT',
+    'DELETE',
+    'TRUNCATE',
+    'REFERENCES',
+    'TRIGGER'
+]) AS priv;
+
+SELECT ok(
+    has_function_privilege(
+        'flypperapp',
+        'ins_user(text, text)',
+        'EXECUTE'
+    ),
+    'flypperapp should have EXECUTE priv on ins_user()'
+);
+
+SELECT ok(
+    has_function_privilege(
+        'flypperapp',
+        'upd_pass(text, text, text)',
+        'EXECUTE'
+    ),
+    'flypperapp should have EXECUTE priv on upd_pass()'
+);
+
+SELECT finish();
+ROLLBACK;

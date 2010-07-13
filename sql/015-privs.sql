@@ -1,3 +1,3 @@
 CREATE ROLE flypperapp;
 
-GRANT SELECT on users TO flypperapp;
+GRANT SELECT ON users TO flypperapp;

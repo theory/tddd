@@ -21,14 +21,14 @@ SELECT ok(
 SELECT ok(
     NOT has_table_privilege('flypperapp', 'users', priv),
     'flypperapp should not have ' || priv || ' priv on users table'
-) FROM (SELECT unnest(ARRAY[
+) FROM unnest(ARRAY[
     'UPDATE',
     'INSERT',
     'DELETE',
     'TRUNCATE',
     'REFERENCES',
     'TRIGGER'
-])) AS foo(priv);
+]) AS priv;
 
 SELECT finish();
 ROLLBACK;

@@ -1,1 +1,1 @@
-CREATE ROLE flypperapp;
+CREATE USER flypperapp;
