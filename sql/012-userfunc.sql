@@ -9,7 +9,7 @@ CREATE OR REPLACE FUNCTION upd_pass(
     nick    TEXT,
     oldpass TEXT,
     newpass TEXT
-) RETURNS BOOL LANGUAGE plpgsql AS $$
+) RETURNS BOOLEAN LANGUAGE plpgsql AS $$
 BEGIN
     UPDATE users
        SET password = crypt($3, gen_salt('md5'))
