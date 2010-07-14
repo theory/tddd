@@ -1,0 +1,97 @@
+SET search_path = public,tap;
+
+BEGIN;
+--SELECT plan( 5 );
+SELECT * FROM no_plan();
+
+SELECT tables_are( 'public', ARRAY[ 'users', 'flyps' ] );
+
+-- Test users.
+SELECT has_table(  'users' );
+SELECT has_pk(     'users' );
+
+SELECT has_column(        'users', 'nickname' );
+SELECT col_type_is(       'users', 'nickname', 'text' );
+SELECT col_hasnt_default( 'users', 'nickname' );
+SELECT col_is_pk(         'users', 'nickname' );
+
+SELECT has_column(        'users', 'password' );
+SELECT col_type_is(       'users', 'password', 'text' );
+SELECT col_not_null(      'users', 'password' );
+SELECT col_hasnt_default( 'users', 'password' );
+
+SELECT has_column(        'users', 'timestamp' );
+SELECT col_type_is(       'users', 'timestamp', 'timestamp with time zone' );
+SELECT col_not_null(      'users', 'timestamp' );
+SELECT col_has_default(   'users', 'timestamp' );
+SELECT col_default_is(    'users', 'timestamp', 'now()' );
+
+SELECT has_function('crypt');
+SELECT has_function('gen_salt');
+
+-- Test BODY domain.
+SELECT has_domain('body');
+SELECT domain_type_is('body', 'text'); 
+CREATE TEMPORARY TABLE foo (body body);
+SELECT lives_ok(
+    $$INSERT INTO foo VALUES('whatever'); $$,
+    'Should be able to insert a short body value'
+);
+
+SELECT lives_ok(
+    $$ INSERT INTO foo VALUES(lpad('', 180, 'xy')); $$,
+    'Should be able to insert 180 character body'
+);
+
+SELECT throws_ok(
+    $$ INSERT INTO foo VALUES(lpad('', 181, 'xy')); $$,
+    '23514',
+    NULL,
+    'Body domain should reject 181 chars'
+);
+
+-- Test flyps.
+SELECT has_table(  'flyps' );
+SELECT has_pk(     'flyps' );
+SELECT has_fk(     'flyps' );
+
+SELECT has_column(        'flyps', 'id' );
+SELECT col_type_is(       'flyps', 'id', 'text' );
+SELECT col_hasnt_default( 'flyps', 'id' );
+SELECT col_is_pk(         'flyps', 'id' );
+
+SELECT has_column(        'flyps', 'nickname' );
+SELECT col_type_is(       'flyps', 'nickname', 'text' );
+SELECT col_not_null(      'flyps', 'nickname' );
+SELECT col_hasnt_default( 'flyps', 'nickname' );
+SELECT col_is_fk(         'flyps', 'nickname' );
+SELECT fk_ok( 'flyps', 'nickname', 'users', 'nickname'); 
+
+SELECT has_column(      'flyps', 'body' );
+SELECT col_type_is(     'flyps', 'body', 'body' );
+SELECT col_not_null(    'flyps', 'body' );
+SELECT col_has_default( 'flyps', 'body' );
+SELECT col_default_is(  'flyps', 'body', '');
+
+SELECT has_column(      'flyps', 'timestamp' );
+SELECT col_type_is(     'flyps', 'timestamp', 'timestamp with time zone' );
+SELECT col_not_null(    'flyps', 'timestamp' );
+SELECT col_has_default( 'flyps', 'timestamp' );
+SELECT col_default_is(  'flyps', 'timestamp', 'clock_timestamp()');
+
+SELECT has_column(        'flyps', 'tsv' );
+SELECT col_type_is(       'flyps', 'tsv', 'tsvector' );
+SELECT col_not_null(      'flyps', 'tsv' );
+SELECT col_hasnt_default( 'flyps', 'tsv' );
+
+SELECT has_trigger('flyps', 'flyp_fti');
+SELECT trigger_is( 'flyps', 'flyp_fti', 'tsvector_update_trigger');
+
+SELECT has_index('flyps', 'flyp_body_fti', 'tsv'::name);
+SELECT index_is_type('flyps', 'flyp_body_fti', 'gin');
+
+SELECT has_index('flyps', 'flyp_timestamp_idx', 'timestamp'::name);
+SELECT index_is_type('flyps', 'flyp_timestamp_idx', 'btree');
+
+SELECT finish();
+ROLLBACK;
