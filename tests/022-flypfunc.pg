@@ -1,0 +1,40 @@
+SET search_path = public,tap;
+
+BEGIN;
+--SELECT plan( 5 );
+SELECT * FROM no_plan();
+
+-- Test get_random_string().
+SELECT has_function('get_random_string');
+SELECT has_function('get_random_string', ARRAY['integer']);
+SELECT function_returns('get_random_string', 'text');
+SELECT function_lang_is('get_random_string', 'plpgsql');
+SELECT volatility_is('get_random_string', 'volatile');
+SELECT is_strict('get_random_string');
+
+SELECT is(
+    length(get_random_string(i)), i,
+    'get_random_string(' || i || ') should work'
+) FROM generate_series(1, 33) AS i;
+
+
+-- Test ins_flyp().
+SELECT has_function('ins_flyp');
+SELECT has_function('ins_flyp', ARRAY['text', 'text']);
+SELECT function_returns('ins_flyp', 'text');
+SELECT function_lang_is('ins_flyp', 'plpgsql');
+SELECT volatility_is('ins_flyp', 'volatile');
+SELECT is_definer('ins_flyp');
+
+SELECT ins_user('theory', '****');
+SELECT is( COUNT(*)::int, 0, 'Should be no flyps')
+  FROM flyps;
+SELECT ok(
+    ins_flyp('theory', 'whatever'),
+    'Insert a flyp'
+);
+SELECT is( COUNT(*)::int, 1, 'Should now be 1 flyps')
+  FROM flyps;
+
+SELECT * FROM finish();
+ROLLBACK;
