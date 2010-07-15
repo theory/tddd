@@ -36,5 +36,10 @@ SELECT ok(
 SELECT is( COUNT(*)::int, 1, 'Should now be 1 flyps')
   FROM flyps;
 
+-- Test mocking get_random_string().
+-- Test rows
+-- Test string length > 30 dying.
+-- Test flypparpp user permissions.
+
 SELECT * FROM finish();
 ROLLBACK;

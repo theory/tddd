@@ -114,10 +114,14 @@ SELECT fk_ok( 'ignored', 'ignored_nick', 'users', 'nickname');
 
 SELECT col_is_pk('ignored', ARRAY['user_nick', 'ignored_nick']);
 
-SELECT has_index('ignored', 'ignored_user_nick_idx', 'user_nick'::name);
+SELECT has_index(
+    'ignored', 'ignored_user_nick_idx', 'user_nick'::name
+);
 SELECT index_is_type('ignored', 'ignored_user_nick_idx', 'btree');
 
-SELECT has_index('ignored', 'ignored_ignored_nick_idx', 'ignored_nick'::name);
+SELECT has_index(
+    'ignored', 'ignored_ignored_nick_idx', 'ignored_nick'::name
+);
 SELECT index_is_type('ignored', 'ignored_ignored_nick_idx', 'btree');
 
 SELECT finish();
