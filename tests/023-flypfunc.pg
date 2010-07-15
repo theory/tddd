@@ -1,0 +1,62 @@
+SET search_path = public,tap;
+
+BEGIN;
+--SELECT plan( 5 );
+SELECT * FROM no_plan();
+
+-- Test get_random_string().
+SELECT has_function('get_random_string');
+SELECT has_function('get_random_string', ARRAY['integer']);
+SELECT function_returns('get_random_string', 'text');
+SELECT function_lang_is('get_random_string', 'plpgsql');
+SELECT volatility_is('get_random_string', 'volatile');
+SELECT is_strict('get_random_string');
+
+SELECT is(
+    length(get_random_string(i)), i,
+    'get_random_string(' || i || ') should work'
+) FROM generate_series(1, 33) AS i;
+
+-- Test ins_flyp().
+SELECT has_function('ins_flyp');
+SELECT has_function('ins_flyp', ARRAY['text', 'text']);
+SELECT function_returns('ins_flyp', 'text');
+SELECT function_lang_is('ins_flyp', 'plpgsql');
+SELECT volatility_is('ins_flyp', 'volatile');
+SELECT is_definer('ins_flyp');
+
+SELECT ins_user('theory', '****');
+
+CREATE SCHEMA mock;
+SET search_path= mock,public,tap;
+
+CREATE OR REPLACE FUNCTION mock.get_random_string(
+    INTEGER
+) RETURNS TEXT LANGUAGE SQL AS $$
+    SELECT 'a'::text;
+$$;
+
+SELECT is( COUNT(*)::int, 0, 'Should be no flyps')
+  FROM flyps;
+
+SELECT is(
+    ins_flyp('theory', 'whatever'), 'a',
+    'Inserting a flyp should return ID'
+);
+SELECT is( COUNT(*)::int, 1, 'Should now be 1 flyps')
+  FROM flyps;
+
+-- Try again.
+SELECT throws_ok(
+    $$ SELECT ins_flyp('theory', 'whatever') $$,
+    'P0001',
+    '30-character id requested; something is wrong'
+);
+
+-- Test mocking get_random_string().
+-- Test rows
+-- Test string length > 30 dying.
+-- Test flypparpp user permissions.
+
+SELECT * FROM finish();
+ROLLBACK;

@@ -17,29 +17,5 @@ SELECT is(
     'get_random_string(' || i || ') should work'
 ) FROM generate_series(1, 33) AS i;
 
-
--- Test ins_flyp().
-SELECT has_function('ins_flyp');
-SELECT has_function('ins_flyp', ARRAY['text', 'text']);
-SELECT function_returns('ins_flyp', 'text');
-SELECT function_lang_is('ins_flyp', 'plpgsql');
-SELECT volatility_is('ins_flyp', 'volatile');
-SELECT is_definer('ins_flyp');
-
-SELECT ins_user('theory', '****');
-SELECT is( COUNT(*)::int, 0, 'Should be no flyps')
-  FROM flyps;
-SELECT ok(
-    ins_flyp('theory', 'whatever'),
-    'Insert a flyp'
-);
-SELECT is( COUNT(*)::int, 1, 'Should now be 1 flyps')
-  FROM flyps;
-
--- Test mocking get_random_string().
--- Test rows
--- Test string length > 30 dying.
--- Test flypparpp user permissions.
-
 SELECT * FROM finish();
 ROLLBACK;
