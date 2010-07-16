@@ -93,29 +93,29 @@ SELECT is(
 ) FROM users WHERE nickname = 'theory';
 
 -- Try with limited permission role.
-GRANT USAGE ON SCHEMA tap TO flypperapp;
-SET ROLE flypperapp;
+GRANT USAGE ON SCHEMA tap TO fliprapp;
+SET ROLE fliprapp;
 
 SELECT lives_ok(
     $$ SELECT ins_user('anna', 'blue sea') $$,
-    'Insert user as flypperapp'
+    'Insert user as fliprapp'
 );
 
 SELECT is(
     password,
     crypt('blue sea', password),
-    'User created by flypperapp should exist'
+    'User created by fliprapp should exist'
 ) FROM users WHERE nickname = 'anna';
 
 SELECT ok(
     upd_pass('anna', 'blue sea', 'red sky'),
-    'Update password as flypperapp'
+    'Update password as fliprapp'
 );
 
 SELECT is(
     password,
     crypt('red sky', password),
-    'Password updated by flypperapp should be correct'
+    'Password updated by fliprapp should be correct'
 ) FROM users WHERE nickname = 'anna';
 
 SELECT finish();

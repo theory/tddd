@@ -1,1 +1,1 @@
-CREATE USER flypperapp;
+CREATE USER fliprapp;

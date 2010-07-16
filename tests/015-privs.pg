@@ -4,8 +4,8 @@ BEGIN;
 --SELECT plan( 5 );
 SELECT * FROM no_plan();
 
-SELECT has_role('flypperapp');
-SELECT isnt_superuser('flypperapp');
+SELECT has_role('fliprapp');
+SELECT isnt_superuser('fliprapp');
 
 SELECT volatility_is('ins_user', 'volatile');
 SELECT volatility_is('upd_pass', 'volatile');
@@ -14,13 +14,13 @@ SELECT is_definer('ins_user');
 SELECT is_definer('upd_pass');
 
 SELECT ok(
-    has_table_privilege('flypperapp', 'users', 'SELECT'),
-    'flypperapp should have SELECT priv on users table'
+    has_table_privilege('fliprapp', 'users', 'SELECT'),
+    'fliprapp should have SELECT priv on users table'
 );
 
 SELECT ok(
-    NOT has_table_privilege('flypperapp', 'users', priv),
-    'flypperapp should not have ' || priv || ' priv on users table'
+    NOT has_table_privilege('fliprapp', 'users', priv),
+    'fliprapp should not have ' || priv || ' priv on users table'
 ) FROM unnest(ARRAY[
     'UPDATE',
     'INSERT',
