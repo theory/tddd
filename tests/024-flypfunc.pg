@@ -38,7 +38,7 @@ SELECT ins_user('jrivers', '****');
 SELECT is( COUNT(*)::int, 0, 'Should be no flyps')
   FROM flyps;
 
-SET search_path = mock,public,tap;
+SET search_path = mock,public,tap,pg_catalog;
 SELECT is(
     ins_flyp(
         'jrivers',
@@ -57,10 +57,6 @@ SELECT throws_ok(
     'P0001',
     '30-character id requested; something is wrong'
 );
-
--- Test rows
--- Test string length > 30 dying.
--- Test flypparpp user permissions.
 
 SELECT * FROM finish();
 ROLLBACK;

@@ -19,23 +19,20 @@ CREATE OR REPLACE FUNCTION ins_flyp(
    bod  TEXT
 ) RETURNS TEXT LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
-    id_len int := 1;
+    id_len  INT := 1;
     flyp_id TEXT;
 BEGIN
-    LOOP
-        BEGIN
-            flyp_id := get_random_string(id_len);
-            INSERT INTO flyps (id, body, nickname)
-            VALUES (flyp_id, bod, nick);
-            RETURN flyp_id;
-        EXCEPTION WHEN unique_violation THEN
-            -- do nothing.
-        END;
+    LOOP BEGIN
+        flyp_id := get_random_string(id_len);
+        INSERT INTO flyps (id, body, nickname, timestamp)
+        VALUES (flyp_id, bod, nick, clock_timestamp());
+        RETURN flyp_id;
+    EXCEPTION WHEN unique_violation THEN
         id_len := id_len + 1;
         IF id_len >= 30 THEN
-            RAISE EXCEPTION 'random string of length == 30 requested. something''s wrong.';
+            RAISE EXCEPTION '30-character id requested; something is wrong';
         END IF;
-    END LOOP;
+    END; END LOOP;
 END;
 $$;
 

@@ -24,8 +24,8 @@ DECLARE
 BEGIN
     LOOP BEGIN
         flyp_id := get_random_string(id_len);
-        INSERT INTO flyps (id, body, nickname)
-        VALUES (flyp_id, bod, nick);
+        INSERT INTO flyps (id, body, nickname, timestamp)
+        VALUES (flyp_id, bod, nick, clock_timestamp());
         RETURN flyp_id;
     EXCEPTION WHEN unique_violation THEN
         id_len := id_len + 1;
