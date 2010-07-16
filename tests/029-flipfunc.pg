@@ -1,0 +1,141 @@
+SET search_path = public,tap;
+
+BEGIN;
+--SELECT plan( 5 );
+SELECT * FROM no_plan();
+
+-- Test get_random_string().
+SELECT has_function('get_random_string');
+SELECT has_function('get_random_string', ARRAY['integer']);
+SELECT function_returns('get_random_string', 'text');
+SELECT function_lang_is('get_random_string', 'plpgsql');
+SELECT volatility_is('get_random_string', 'volatile');
+SELECT is_strict('get_random_string');
+
+SELECT is(
+    length(get_random_string(i)), i,
+    'get_random_string(' || i || ') should work'
+) FROM generate_series(1, 33) AS i;
+
+-- Test ins_flip().
+SELECT has_function('ins_flip');
+SELECT has_function('ins_flip', ARRAY['text', 'text']);
+SELECT function_returns('ins_flip', 'text');
+SELECT function_lang_is('ins_flip', 'plpgsql');
+SELECT volatility_is('ins_flip', 'volatile');
+SELECT is_definer('ins_flip');
+
+CREATE SCHEMA mock;
+
+CREATE TEMPORARY SEQUENCE fidseq;
+CREATE TEMPORARY TABLE fids (
+    id  INTEGER DEFAULT NEXTVAL('fidseq'),
+    fid TEXT
+);
+
+CREATE OR REPLACE FUNCTION mock.get_random_string(
+    INTEGER
+) RETURNS TEXT LANGUAGE plpgsql AS $$
+DECLARE
+    rec fids;
+BEGIN
+    SELECT * INTO rec
+      FROM fids
+     WHERE id = (SELECT MIN(id) FROM fids);
+     IF rec.fid IS NULL THEN RETURN 'a'; END IF;
+     DELETE FROM fids WHERE id = rec.id;
+     RETURN rec.fid;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION add_fids(
+    VARIADIC fids text[]
+) RETURNS VOID LANGUAGE SQL AS $$
+    ALTER SEQUENCE fidseq RESTART;
+    DELETE FROM fids;
+    INSERT INTO fids (fid)
+    SELECT $1[i] FROM generate_series(1, array_upper($1, 1)) AS i
+$$;
+
+CREATE OR REPLACE FUNCTION mock.clock_timestamp(
+) RETURNS timestamptz LANGUAGE SQL AS $$
+    SELECT '2010-07-19 11:01:03.306399+00'::timestamptz;
+$$;
+
+SELECT ins_user('jrivers', '****');
+
+SELECT is( COUNT(*)::int, 0, 'Should be no flips')
+  FROM flips;
+
+SET search_path = mock,public,tap,pg_catalog;
+SELECT is(
+    ins_flip(
+        'jrivers',
+        'If I found you floating in my pool, I’d punish my dog.'
+     ),
+     'a',
+    'Inserting a flip should return ID'
+);
+
+SELECT is( COUNT(*)::int, 1, 'Should now be 1 flips')
+  FROM flips;
+
+-- Try again.
+SELECT throws_ok(
+    $$ SELECT ins_flip('theory', 'whatever') $$,
+    'P0001',
+    '30-character id requested; something is wrong'
+);
+
+\set body '\'If I found you floating in my pool, I’d punish my dog.\''
+
+SELECT is(
+    flips.*,
+    ROW(
+        'a', 'jrivers', :body, clock_timestamp(), to_tsvector(:body)
+    )::flips,
+    'Inserted row should be correct'
+) FROM flips WHERE id = 'a';
+
+SELECT ins_user((ARRAY['drickles', 'mali', 'gmarx'])[i], '*****')
+FROM generate_series(1,3) AS i;
+
+SELECT add_fids('b', 'c', 'd');
+
+SELECT is(
+    ins_flip(
+        'mali',
+        'You’re so ugly they ought to donate your face to the world wildlife fund.'
+    ), 'b', 'Insert mali flip'
+);
+
+SELECT is(
+    ins_flip(
+        'drickles',
+        'Oh my God, look at you. Anyone else hurt in the accident?'
+    ), 'c', 'Insert drickles flip'
+);
+
+SELECT is(
+    ins_flip(
+        'gmarx',
+        'Don’t look now, but there’s one too many in this room and I think it’s you.'
+    ), 'd', 'Insert gmarx flip'
+);
+
+SELECT add_fids('e', 'f', 'g', 'h', 'i', 'j');
+
+-- Lots of Rickles.
+SELECT ok(
+    ins_flip('drickles', (ARRAY[
+        'Who picks your clothes — Stevie Wonder?',
+        'Do yourself a favor — make an appointment with a brain surgeon',
+        'Why are you always speeding? It’s not like you’ve got people holding their breath til you get there',
+        'Personally, I liked you better when you were on the cover of “Mad magazine”',
+        'Don’t look now, but something died on your head',
+        'Let’s face it -- you put the “suck” in “success”'
+    ])[i]) <> 'a'
+) FROM generate_series(1, 6) AS i;
+
+SELECT * FROM finish();
+ROLLBACK;
