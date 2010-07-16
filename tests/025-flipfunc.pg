@@ -33,11 +33,6 @@ CREATE OR REPLACE FUNCTION mock.get_random_string(
     SELECT 'a'::text;
 $$;
 
-CREATE OR REPLACE FUNCTION mock.clock_timestamp(
-) RETURNS timestamptz LANGUAGE SQL AS $$
-    SELECT '2010-07-19 11:01:03.306399+00'::timestamptz;
-$$;
-
 SELECT ins_user('jrivers', '****');
 
 SELECT is( COUNT(*)::int, 0, 'Should be no flyps')
