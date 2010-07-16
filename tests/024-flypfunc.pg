@@ -51,5 +51,16 @@ SELECT is(
 SELECT is( COUNT(*)::int, 1, 'Should now be 1 flyps')
   FROM flyps;
 
+-- Try again.
+SELECT throws_ok(
+    $$ SELECT ins_flyp('theory', 'whatever') $$,
+    'P0001',
+    '30-character id requested; something is wrong'
+);
+
+-- Test rows
+-- Test string length > 30 dying.
+-- Test flypparpp user permissions.
+
 SELECT * FROM finish();
 ROLLBACK;
