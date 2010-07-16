@@ -17,13 +17,13 @@ SELECT is(
     'get_random_string(' || i || ') should work'
 ) FROM generate_series(1, 33) AS i;
 
--- Test ins_flyp().
-SELECT has_function('ins_flyp');
-SELECT has_function('ins_flyp', ARRAY['text', 'text']);
-SELECT function_returns('ins_flyp', 'text');
-SELECT function_lang_is('ins_flyp', 'plpgsql');
-SELECT volatility_is('ins_flyp', 'volatile');
-SELECT is_definer('ins_flyp');
+-- Test ins_flip().
+SELECT has_function('ins_flip');
+SELECT has_function('ins_flip', ARRAY['text', 'text']);
+SELECT function_returns('ins_flip', 'text');
+SELECT function_lang_is('ins_flip', 'plpgsql');
+SELECT volatility_is('ins_flip', 'volatile');
+SELECT is_definer('ins_flip');
 
 CREATE SCHEMA mock;
 
@@ -64,25 +64,25 @@ $$;
 
 SELECT ins_user('jrivers', '****');
 
-SELECT is( COUNT(*)::int, 0, 'Should be no flyps')
-  FROM flyps;
+SELECT is( COUNT(*)::int, 0, 'Should be no flips')
+  FROM flips;
 
 SET search_path = mock,public,tap,pg_catalog;
 SELECT is(
-    ins_flyp(
+    ins_flip(
         'jrivers',
         'If I found you floating in my pool, I’d punish my dog.'
      ),
      'a',
-    'Inserting a flyp should return ID'
+    'Inserting a flip should return ID'
 );
 
-SELECT is( COUNT(*)::int, 1, 'Should now be 1 flyps')
-  FROM flyps;
+SELECT is( COUNT(*)::int, 1, 'Should now be 1 flips')
+  FROM flips;
 
 -- Try again.
 SELECT throws_ok(
-    $$ SELECT ins_flyp('theory', 'whatever') $$,
+    $$ SELECT ins_flip('theory', 'whatever') $$,
     'P0001',
     '30-character id requested; something is wrong'
 );
@@ -90,12 +90,12 @@ SELECT throws_ok(
 \set body '\'If I found you floating in my pool, I’d punish my dog.\''
 
 SELECT is(
-    flyps.*,
+    flips.*,
     ROW(
         'a', 'jrivers', :body, clock_timestamp(), to_tsvector(:body)
-    )::flyps,
+    )::flips,
     'Inserted row should be correct'
-) FROM flyps WHERE id = 'a';
+) FROM flips WHERE id = 'a';
 
 SELECT * FROM finish();
 ROLLBACK;

@@ -4,7 +4,7 @@ BEGIN;
 --SELECT plan( 5 );
 SELECT * FROM no_plan();
 
-SELECT tables_are( 'public', ARRAY[ 'users', 'flyps' ] );
+SELECT tables_are( 'public', ARRAY[ 'users', 'flips' ] );
 
 -- Test users.
 SELECT has_table(  'users' );
@@ -50,48 +50,48 @@ SELECT throws_ok(
     'Body domain should reject 181 chars'
 );
 
--- Test flyps.
-SELECT has_table(  'flyps' );
-SELECT has_pk(     'flyps' );
-SELECT has_fk(     'flyps' );
+-- Test flips.
+SELECT has_table(  'flips' );
+SELECT has_pk(     'flips' );
+SELECT has_fk(     'flips' );
 
-SELECT has_column(        'flyps', 'id' );
-SELECT col_type_is(       'flyps', 'id', 'text' );
-SELECT col_hasnt_default( 'flyps', 'id' );
-SELECT col_is_pk(         'flyps', 'id' );
+SELECT has_column(        'flips', 'id' );
+SELECT col_type_is(       'flips', 'id', 'text' );
+SELECT col_hasnt_default( 'flips', 'id' );
+SELECT col_is_pk(         'flips', 'id' );
 
-SELECT has_column(        'flyps', 'nickname' );
-SELECT col_type_is(       'flyps', 'nickname', 'text' );
-SELECT col_not_null(      'flyps', 'nickname' );
-SELECT col_hasnt_default( 'flyps', 'nickname' );
-SELECT col_is_fk(         'flyps', 'nickname' );
-SELECT fk_ok( 'flyps', 'nickname', 'users', 'nickname'); 
+SELECT has_column(        'flips', 'nickname' );
+SELECT col_type_is(       'flips', 'nickname', 'text' );
+SELECT col_not_null(      'flips', 'nickname' );
+SELECT col_hasnt_default( 'flips', 'nickname' );
+SELECT col_is_fk(         'flips', 'nickname' );
+SELECT fk_ok( 'flips', 'nickname', 'users', 'nickname'); 
 
-SELECT has_column(      'flyps', 'body' );
-SELECT col_type_is(     'flyps', 'body', 'body' );
-SELECT col_not_null(    'flyps', 'body' );
-SELECT col_has_default( 'flyps', 'body' );
-SELECT col_default_is(  'flyps', 'body', '');
+SELECT has_column(      'flips', 'body' );
+SELECT col_type_is(     'flips', 'body', 'body' );
+SELECT col_not_null(    'flips', 'body' );
+SELECT col_has_default( 'flips', 'body' );
+SELECT col_default_is(  'flips', 'body', '');
 
-SELECT has_column(      'flyps', 'timestamp' );
-SELECT col_type_is(     'flyps', 'timestamp', 'timestamp with time zone' );
-SELECT col_not_null(    'flyps', 'timestamp' );
-SELECT col_has_default( 'flyps', 'timestamp' );
-SELECT col_default_is(  'flyps', 'timestamp', 'clock_timestamp()');
+SELECT has_column(      'flips', 'timestamp' );
+SELECT col_type_is(     'flips', 'timestamp', 'timestamp with time zone' );
+SELECT col_not_null(    'flips', 'timestamp' );
+SELECT col_has_default( 'flips', 'timestamp' );
+SELECT col_default_is(  'flips', 'timestamp', 'clock_timestamp()');
 
-SELECT has_column(        'flyps', 'tsv' );
-SELECT col_type_is(       'flyps', 'tsv', 'tsvector' );
-SELECT col_not_null(      'flyps', 'tsv' );
-SELECT col_hasnt_default( 'flyps', 'tsv' );
+SELECT has_column(        'flips', 'tsv' );
+SELECT col_type_is(       'flips', 'tsv', 'tsvector' );
+SELECT col_not_null(      'flips', 'tsv' );
+SELECT col_hasnt_default( 'flips', 'tsv' );
 
-SELECT has_trigger('flyps', 'flyp_fti');
-SELECT trigger_is( 'flyps', 'flyp_fti', 'tsvector_update_trigger');
+SELECT has_trigger('flips', 'flip_fti');
+SELECT trigger_is( 'flips', 'flip_fti', 'tsvector_update_trigger');
 
-SELECT has_index('flyps', 'flyp_body_fti', 'tsv'::name);
-SELECT index_is_type('flyps', 'flyp_body_fti', 'gin');
+SELECT has_index('flips', 'flip_body_fti', 'tsv'::name);
+SELECT index_is_type('flips', 'flip_body_fti', 'gin');
 
-SELECT has_index('flyps', 'flyp_timestamp_idx', 'timestamp'::name);
-SELECT index_is_type('flyps', 'flyp_timestamp_idx', 'btree');
+SELECT has_index('flips', 'flip_timestamp_idx', 'timestamp'::name);
+SELECT index_is_type('flips', 'flip_timestamp_idx', 'btree');
 
 SELECT finish();
 ROLLBACK;

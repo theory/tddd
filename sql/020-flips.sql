@@ -2,7 +2,7 @@ CREATE DOMAIN body AS TEXT;
 
 ALTER DOMAIN body ADD CONSTRAINT max_length CHECK ( length(value) <= 180 );
 
-CREATE TABLE flyps (
+CREATE TABLE flips (
     id        TEXT        PRIMARY KEY,
     nickname  TEXT        NOT NULL REFERENCES users(nickname),
     body      BODY        NOT NULL DEFAULT '',
@@ -10,9 +10,9 @@ CREATE TABLE flyps (
     tsv       tsvector    NOT NULL
 );
 
-CREATE INDEX flyp_body_fti      ON flyps USING gin(tsv);
-CREATE INDEX flyp_timestamp_idx ON flyps(timestamp);
+CREATE INDEX flip_body_fti      ON flips USING gin(tsv);
+CREATE INDEX flip_timestamp_idx ON flips(timestamp);
 
-CREATE TRIGGER flyp_fti BEFORE INSERT OR UPDATE ON flyps
+CREATE TRIGGER flip_fti BEFORE INSERT OR UPDATE ON flips
 FOR EACH ROW EXECUTE PROCEDURE
 tsvector_update_trigger(tsv, 'pg_catalog.english', body);

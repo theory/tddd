@@ -14,19 +14,19 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION ins_flyp(
+CREATE OR REPLACE FUNCTION ins_flip(
    nick TEXT,
    bod  TEXT
 ) RETURNS TEXT LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
     id_len  INT := 1;
-    flyp_id TEXT;
+    flip_id TEXT;
 BEGIN
     LOOP BEGIN
-        flyp_id := get_random_string(id_len);
-        INSERT INTO flyps (id, body, nickname, timestamp)
-        VALUES (flyp_id, bod, nick, clock_timestamp());
-        RETURN flyp_id;
+        flip_id := get_random_string(id_len);
+        INSERT INTO flips (id, body, nickname, timestamp)
+        VALUES (flip_id, bod, nick, clock_timestamp());
+        RETURN flip_id;
     EXCEPTION WHEN unique_violation THEN
         id_len := id_len + 1;
         IF id_len >= 30 THEN
@@ -39,11 +39,11 @@ $$;
 \q
 
 
-CREATE OR REPLACE FUNCTION del_flyp(
-   flyp_id TEXT
+CREATE OR REPLACE FUNCTION del_flip(
+   flip_id TEXT
 ) RETURNS BOOLEAN LANGUAGE plpgsql SECURITY DEFINER AS $$
 BEGIN
-    DELETE FROM flyps WHERE id = flyp_id;
+    DELETE FROM flips WHERE id = flip_id;
     RETURN FOUND;
 END;
 $$;
@@ -73,14 +73,14 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION get_flyps_for(
+CREATE OR REPLACE FUNCTION get_flips_for(
     nickname TEXT,
     offset   int,
     limit    int,
-) RETURNS SETOF flyps LANGUAGE sql SECURITY DEFINER AS $$
+) RETURNS SETOF flips LANGUAGE sql SECURITY DEFINER AS $$
     SELECT *
-      FROM flyps
-      LEFT JOIN ignored ON flyps.nickname = ignored.ignored_nick
+      FROM flips
+      LEFT JOIN ignored ON flips.nickname = ignored.ignored_nick
      WHERE ignored.user_nick = $1
        AND ignored.ignored_nick IS NULL
      ORDER BY timestamp DESC
