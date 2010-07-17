@@ -1,0 +1,27 @@
+SET search_path = public,tap;
+
+BEGIN;
+SELECT plan( 3 );
+
+-- Test user fixtures
+\i fixtures/users.copy
+
+SELECT is(
+    COUNT(*)::INT, 5,
+    'Should have five user fixtures'
+) FROM users;
+
+SELECT is(
+    users.*,
+    ROW('theory','yroeht','2010-07-19 18:30:05.988213+00')::users,
+    'User "theory" should look right'
+) FROM users WHERE nickname = 'theory';
+
+SELECT is(
+    users.*,
+    ROW('mali','ilam','2010-07-19 18:33:54.24654+00')::users,
+    'User "mali" should look right'
+) FROM users WHERE nickname = 'mali';
+
+SELECT * FROM finish();
+ROLLBACK;

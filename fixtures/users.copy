@@ -1,0 +1,7 @@
+COPY users FROM STDIN CSV;
+theory,yroeht,2010-07-19 18:30:05.988213+00
+jrivers,srevirj,2010-07-19 18:30:05.988213+00
+drickles,selkcird,2010-07-19 18:31:02.84838+00
+gmarx,xramg,2010-07-19 18:32:23.85843+00
+mali,ilam,2010-07-19 18:33:54.24654+00
+\.

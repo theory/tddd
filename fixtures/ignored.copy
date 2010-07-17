@@ -1,0 +1,5 @@
+COPY ignored FROM STDIN CSV;
+jrivers,drickles
+drickles,jrivers
+jrivers,gmarx
+\.

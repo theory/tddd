@@ -1,0 +1,17 @@
+COPY flips FROM STDIN CSV;
+a,jrivers,"If I found you floating in my pool, I’d punish my dog.",2010-07-19 11:01:03.306399+00,
+b,mali,You’re so ugly they ought to donate your face to the world wildlife fund.,2010-07-19 11:01:03.306399+00,
+c,drickles,"Oh my God, look at you. Anyone else hurt in the accident?",2010-07-19 11:01:03.306399+00,
+d,gmarx,"Don’t look now, but there’s one too many in this room and I think it’s you.",2010-07-19 11:01:03.306399+00,
+e,drickles,Who picks your clothes — Stevie Wonder?,2010-07-19 11:01:03.306399+00,
+f,drickles,Do yourself a favor — make an appointment with a brain surgeon,2010-07-19 11:01:03.306399+00,
+g,drickles,Why are you always speeding? It’s not like you’ve got people holding their breath til you get there,2010-07-19 11:01:03.306399+00,
+h,drickles,"Personally, I liked you better when you were on the cover of “Mad magazine”",2010-07-19 11:01:03.306399+00,
+i,drickles,"Don’t look now, but something died on your head",2010-07-19 11:01:03.306399+00,
+j,drickles,Let’s face it -- you put the “suck” in “success”,2010-07-19 11:01:03.306399+00,
+k,gmarx,"You’ve got the brain of a four-year-old boy, and I bet he was glad to get rid of it.",2010-07-19 11:01:03.306399+00,
+l,gmarx,Why don’t you bore a hole in yourself and let the sap run out?,2010-07-19 11:01:03.306399+00,
+m,gmarx,Either you’re dead or my watch has stopped.,2010-07-19 11:01:03.306399+00,
+n,gmarx,I don’t care to belong to a club that accepts people like me as member.,2010-07-19 11:01:03.306399+00,
+o,gmarx,I’ve had a perfectly wonderful evening. But this wasn’t it.,2010-07-19 11:01:03.306399+00,
+\.

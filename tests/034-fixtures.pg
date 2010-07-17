@@ -1,0 +1,52 @@
+SET search_path = public,tap;
+
+BEGIN;
+SELECT plan( 6 );
+
+-- Test user fixtures
+\i fixtures/users.copy
+
+SELECT is(
+    COUNT(*)::INT, 5,
+    'Should have five user fixtures'
+) FROM users;
+
+SELECT is(
+    users.*,
+    ROW('theory','yroeht','2010-07-19 18:30:05.988213+00')::users,
+    'User "theory" should look right'
+) FROM users WHERE nickname = 'theory';
+
+SELECT is(
+    users.*,
+    ROW('mali','ilam','2010-07-19 18:33:54.24654+00')::users,
+    'User "mali" should look right'
+) FROM users WHERE nickname = 'mali';
+
+-- Test flip fixtures
+\i fixtures/flips.copy
+
+SELECT is(
+    COUNT(*)::INT, 15,
+    'Should have 15 flip fixtures'
+) FROM flips;
+
+
+\set body '\'If I found you floating in my pool, I’d punish my dog.\''
+
+SELECT is(
+    flips.*,
+    ROW('a','jrivers',:body,'2010-07-19 11:01:03.306399+00',to_tsvector(:body))::flips,
+    'Joanie flip should be present'
+) FROM flips WHERE id = 'a';
+
+\set body '\'I’ve had a perfectly wonderful evening. But this wasn’t it.\''
+
+SELECT is(
+    flips.*,
+    ROW('o','gmarx',:body,'2010-07-19 11:01:03.306399+00',to_tsvector(:body))::flips,
+    'Groucho flip should be present'
+) FROM flips WHERE id = 'o';
+
+SELECT * FROM finish();
+ROLLBACK;

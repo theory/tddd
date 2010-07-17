@@ -13,7 +13,7 @@ SELECT volatility_is('ins_ignore', 'volatile');
 SELECT is_definer('ins_ignore');
 
 -- Insert some users.
-SELECT ins_user((ARRAY['jrivers','drickles', 'mali', 'gmarx'])[i], '*****')
+SELECT ins_user((ARRAY['jrivers', 'drickles', 'mali', 'gmarx'])[i], '*****')
 FROM generate_series(1,4) AS i;
 
 SELECT is(

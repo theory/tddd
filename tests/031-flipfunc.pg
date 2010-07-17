@@ -137,6 +137,25 @@ SELECT ok(
     ])[i]) <> 'a'
 ) FROM generate_series(1, 6) AS i;
 
+SELECT add_fids('k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u');
+-- Lots of Marx.
+SELECT ok(
+    ins_flip('gmarx', (ARRAY[
+        'You’ve got the brain of a four-year-old boy, and I bet he was glad to get rid of it.',
+        'Why don’t you bore a hole in yourself and let the sap run out?',
+        'Either you’re dead or my watch has stopped.',
+        'I don’t care to belong to a club that accepts people like me as member.',
+        'I’ve had a perfectly wonderful evening. But this wasn’t it.',
+        'I married your mother because I wanted children, imagine my disappointment when you came along.',
+        'Don’t look now, but there’s one too many in this room and I think it’s you.',
+        'Time wounds all heels.',
+        'You know I could rent you out as a decoy for duck hunters?',
+        'Do you think I could buy back my introduction to you?',
+        'I never forget a face, but in your case I’ll make an exception.'
+    ])[i]) <> 'a'
+) FROM generate_series(1, 5) AS i;
+COPY(SELECT id, nickname, body, timestamp, NULL FROM flips) TO STDOUT CSV;
+
 -- Test del_flip().
 SELECT has_function('del_flip');
 SELECT has_function('del_flip', ARRAY['text']);
