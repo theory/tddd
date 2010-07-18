@@ -126,6 +126,7 @@ SELECT index_is_type('ignored', 'ignored_ignored_nick_idx', 'btree');
 
 -- Test flipped.
 SELECT has_view('flipped');
+SELECT columns_are( 'flipped', ARRAY['id', 'nickname', 'body', 'timestamp', 'tsv'] );
 
 SELECT has_column(        'flipped', 'id' );
 SELECT col_type_is(       'flipped', 'id', 'text' );

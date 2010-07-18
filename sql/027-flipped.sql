@@ -1,5 +1,5 @@
 CREATE VIEW flipped AS
-SELECT *
+SELECT id, nickname, body, timestamp, tsv
   FROM flips
   LEFT JOIN ignored
     ON flips.nickname = ignored.ignored_nick
