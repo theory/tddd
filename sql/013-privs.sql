@@ -1,1 +1,2 @@
-CREATE USER fliprapp;
+CREATE USER fliprapp
+  WITH LOGIN;

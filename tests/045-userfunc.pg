@@ -1,0 +1,133 @@
+SET search_path = public,tap;
+
+BEGIN;
+--SELECT plan( 5 );
+SELECT * FROM no_plan();
+
+SELECT has_function('ins_user');
+SELECT has_function('ins_user', ARRAY['text', 'text']);
+SELECT function_returns('ins_user', 'void');
+SELECT function_lang_is('ins_user', 'sql');
+
+SELECT is(COUNT(*)::int, 0, 'Should have no users')
+  FROM users;
+SELECT lives_ok(
+    $$ SELECT ins_user('theory', 'wet blanket') $$,
+    'Execution of ins_user() should not die'
+);
+SELECT is(COUNT(*)::int, 1, 'Should now have one user')
+  FROM users;
+
+SELECT isnt(
+    password, 'wet blanket',
+    'Password should not be clear text'
+) FROM users WHERE nickname = 'theory';
+
+SELECT isnt(
+    password, 'theory',
+    'Password should not be nickname'
+) FROM users WHERE nickname = 'theory';
+
+SELECT lives_ok(
+    $$ SELECT ins_user('strongrrl', 'wet blanket') $$,
+    'Insert user "strongrrl"'
+);
+SELECT is(COUNT(*)::int, 2, 'Should now have two users')
+  FROM users;
+
+SELECT isnt(
+    (SELECT password FROM users WHERE nickname = 'strongrrl'),
+    (SELECT password FROM users WHERE nickname = 'theory'),
+    'Same password should not match'
+);
+
+SELECT unalike(
+    password,
+    '%' || nickname || '%',
+    'Password should not contain nickname'
+) FROM users;
+
+SELECT unalike(
+    password,
+    '%wet blanket%',
+    'Password should not contain clear text'
+) FROM users;
+
+SELECT is(
+    password,
+    crypt('wet blanket', password),
+    'Password should match crypted password'
+) FROM users;
+
+SELECT has_language('plpgsql');
+SELECT has_function('upd_pass');
+SELECT has_function('upd_pass', ARRAY['text', 'text', 'text']);
+SELECT function_returns('upd_pass', 'boolean');
+SELECT function_lang_is('upd_pass', 'plpgsql');
+
+SELECT ok(
+    NOT upd_pass('nobody', 'foo', 'bar'),
+    'upd_pass() should return false for nonexistent user'
+);
+
+SELECT ok(
+    NOT upd_pass('theory', 'foo', 'bar'),
+    'upd_pass() should return false for invalid old pass'
+);
+
+SELECT is(
+    password,
+    crypt('wet blanket', password),
+    'Password should be unchanged'
+) FROM users WHERE nickname = 'theory';
+
+SELECT ok(
+    upd_pass('theory', 'wet blanket', 'pgtap rulez'),
+    'upd_pass() should return true for proper args'
+);
+
+SELECT is(
+    password,
+    crypt('pgtap rulez', password),
+    'Password should now be changed'
+) FROM users WHERE nickname = 'theory';
+
+-- Try with limited permission role.
+GRANT USAGE ON SCHEMA tap TO fliprapp;
+SET ROLE fliprapp;
+
+SELECT lives_ok(
+    $$ SELECT ins_user('anna', 'blue sea') $$,
+    'Insert user as fliprapp'
+);
+
+SELECT is(
+    password,
+    crypt('blue sea', password),
+    'User created by fliprapp should exist'
+) FROM users WHERE nickname = 'anna';
+
+SELECT ok(
+    upd_pass('anna', 'blue sea', 'red sky'),
+    'Update password as fliprapp'
+);
+
+SELECT is(
+    password,
+    crypt('red sky', password),
+    'Password updated by fliprapp should be correct'
+) FROM users WHERE nickname = 'anna';
+
+
+SELECT throws_ok(
+    $$ INSERT INTO users_ VALUES ('foo', 'bar') $$,
+    42501 -- permission denied
+);
+
+SELECT throws_ok(
+    $$ UPDATE users_ SET password = 'foo' $$,
+    42501 -- permission denied
+);
+
+SELECT finish();
+ROLLBACK;
