@@ -84,14 +84,23 @@ SELECT col_type_is(       'flips', 'tsv', 'tsvector' );
 SELECT col_not_null(      'flips', 'tsv' );
 SELECT col_hasnt_default( 'flips', 'tsv' );
 
-SELECT has_trigger('flips', 'flip_fti');
-SELECT trigger_is( 'flips', 'flip_fti', 'tsvector_update_trigger');
-
 SELECT has_index('flips', 'flip_body_fti', 'tsv'::name);
 SELECT index_is_type('flips', 'flip_body_fti', 'gin');
 
 SELECT has_index('flips', 'flip_timestamp_idx', 'timestamp'::name);
 SELECT index_is_type('flips', 'flip_timestamp_idx', 'btree');
+
+SELECT has_trigger('flips', 'flip_fti');
+SELECT trigger_is( 'flips', 'flip_fti', 'tsvector_update_trigger');
+
+SELECT ins_user('theory', '****');
+INSERT INTO flips (id, nickname, body)
+VALUES ('a', 'theory', 'this is a test');
+
+SELECT is(
+    tsv, to_tsvector('english', 'this is a test'),
+    'The trigger should work'
+) FROM flips WHERE nickname = 'theory';
 
 SELECT finish();
 ROLLBACK;
