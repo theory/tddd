@@ -1,0 +1,43 @@
+SET search_path = public,tap;
+
+BEGIN;
+--SELECT plan( 5 );
+SELECT * FROM no_plan();
+
+-- Test get_flips_for().
+SELECT has_function('get_flips_for');
+SELECT has_function('get_flips_for', ARRAY['text', 'integer', 'integer']);
+SELECT function_returns('get_flips_for', 'setof flips');
+SELECT function_lang_is('get_flips_for', 'sql');
+SELECT volatility_is('get_flips_for', 'stable');
+SELECT is_definer('get_flips_for');
+
+\i fixtures/users.copy
+\i fixtures/ignored.copy
+\i fixtures/flips.copy
+
+SELECT set_eq(
+    $$ SELECT * FROM get_flips_for('mali', 0, 25) $$,
+    'SELECT * FROM flips',
+    'Should get all flips for get_flips_for(mali)'
+);
+SELECT results_eq(
+    $$ SELECT * FROM get_flips_for('mali', 0, 25) $$,
+    'SELECT * FROM flips ORDER BY timestamp DESC',
+    'Should get all flips in order get_flips_for(mali)'
+);
+
+PREPARE flipquery AS
+ SELECT * FROM flips
+  WHERE nickname <> ALL($1)
+  ORDER BY timestamp DESC;
+
+-- Don ignores Joan.
+SELECT results_eq(  
+    $$ SELECT * FROM get_flips_for('drickles', 0, 25) $$,
+    $$ EXECUTE flipquery(ARRAY['jrivers']) $$,
+    'Don should ignore Joan'
+);
+
+SELECT * FROM finish();
+ROLLBACK;
