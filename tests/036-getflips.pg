@@ -1,0 +1,124 @@
+SET search_path = public,tap;
+
+BEGIN;
+--SELECT plan( 5 );
+SELECT * FROM no_plan();
+
+-- Test get_flips_for().
+SELECT has_function('get_flips_for');
+SELECT has_function('get_flips_for', ARRAY['text', 'integer', 'integer']);
+SELECT function_returns('get_flips_for', 'setof flips');
+SELECT function_lang_is('get_flips_for', 'sql');
+SELECT volatility_is('get_flips_for', 'stable');
+SELECT is_definer('get_flips_for');
+
+SELECT is_empty(
+    $$ SELECT get_flips_for('gmarx', 0, 25) $$,
+    'Should get no rows from get_flips_for(nonexistent)'
+);
+
+\i fixtures/users.copy
+\i fixtures/ignored.copy
+\i fixtures/flips.copy
+
+PREPARE flipquery AS SELECT * FROM flips;
+
+SELECT set_eq(
+    $$ SELECT * FROM get_flips_for('mali', 0, 25) $$,
+    'flipquery',
+    'Should get all flips for get_flips_for(mali)'
+);
+
+DEALLOCATE flipquery;
+PREPARE flipquery AS SELECT * FROM flips ORDER BY timestamp DESC;
+
+SELECT results_eq(
+    $$ SELECT * FROM get_flips_for('mali', 0, 25) $$,
+    'flipquery',
+    'Should get all flips in order get_flips_for(mali)'
+);
+
+DEALLOCATE flipquery;
+PREPARE flipquery AS
+ SELECT * FROM flips
+  WHERE nickname <> ALL($1)
+  ORDER BY timestamp DESC;
+
+-- Don ignores Joan.
+SELECT results_eq(  
+    $$ SELECT * FROM get_flips_for('drickles', 0, 25) $$,
+    $$ EXECUTE flipquery(ARRAY['jrivers']) $$,
+    'Don should ignore Joan'
+);
+
+-- Joan ignores Don and Groucho.
+SELECT results_eq(
+    $$ SELECT * FROM get_flips_for('jrivers', 0, 25) $$,
+    $$ EXECUTE flipquery(ARRAY['drickles', 'gmarx']) $$,
+    'Joan should ignore Don and Groucho'
+);
+  
+DEALLOCATE flipquery;
+PREPARE flipquery AS
+ SELECT * FROM flips
+  WHERE nickname <> ALL($1)
+  ORDER BY timestamp DESC
+ OFFSET $2
+  LIMIT $3;
+
+-- Test offset and limit.
+SELECT results_eq(  
+    $$ SELECT * FROM get_flips_for('drickles', 0, 3) $$,
+    $$ EXECUTE flipquery(ARRAY['jrivers'], 0, 3) $$,
+    'Limit should work for Don'
+);
+
+SELECT results_eq(  
+    $$ SELECT * FROM get_flips_for('drickles', 2, NULL) $$,
+    $$ EXECUTE flipquery(ARRAY['jrivers'], 2, NULL) $$,
+    'Offset should work for Don'
+);
+
+SELECT results_eq(  
+    $$ SELECT * FROM get_flips_for('drickles', 2, 4) $$,
+    $$ EXECUTE flipquery(ARRAY['jrivers'], 2, 4) $$,
+    'Offset and limit should work for Don'
+);
+
+-- Duplicate the function.
+DEALLOCATE flipquery;
+PREPARE flipquery AS
+SELECT flips.*
+  FROM flips
+ WHERE nickname NOT IN (
+     SELECT ignored_nick
+       FROM ignored
+      WHERE user_nick = $1
+ )
+ ORDER BY timestamp DESC
+OFFSET $2
+ LIMIT $3;
+
+-- Do the same for all users.
+SELECT results_eq(
+    'SELECT * FROM get_flips_for('
+        || quote_literal(nickname) || ', '
+        || spec[i][1] || ', '
+        || spec[i][2]
+        || ')',
+    'EXECUTE flipquery('
+        || quote_literal(nickname) || ', '
+        || spec[i][1] || ', '
+        || spec[i][2]
+        || ')',
+    spec[i][3] || ' should work for ' || nickname
+) FROM users,
+       generate_series(1,3) AS i,
+       (SELECT ARRAY[
+           ['3', 'NULL', 'Offset' ],
+           ['0', '3',    'Limit' ],
+           ['2', '4',    'Offset and limit' ]
+       ]) AS foo(spec);
+
+SELECT * FROM finish();
+ROLLBACK;
