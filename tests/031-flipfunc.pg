@@ -54,7 +54,7 @@ CREATE OR REPLACE FUNCTION add_fids(
     ALTER SEQUENCE fidseq RESTART;
     DELETE FROM fids;
     INSERT INTO fids (fid)
-    SELECT $1[i] FROM generate_series(1, array_upper($1, 1)) AS i
+    SELECT n FROM unnest($1) AS n;
 $$;
 
 CREATE OR REPLACE FUNCTION mock.clock_timestamp(
@@ -98,8 +98,8 @@ SELECT is(
     'Inserted row should be correct'
 ) FROM flips WHERE id = 'a';
 
-SELECT ins_user((ARRAY['drickles', 'mali', 'gmarx'])[i], '*****')
-FROM generate_series(1,3) AS i;
+SELECT ins_user(nick, '*****')
+FROM unnest(ARRAY['drickles', 'mali', 'gmarx']) AS nick;
 
 SELECT add_fids('b', 'c', 'd');
 
@@ -128,21 +128,22 @@ SELECT add_fids('e', 'f', 'g', 'h', 'i', 'j');
 
 -- Lots of Rickles.
 SELECT ok(
-    ins_flip('drickles', (ARRAY[
-        'Who picks your clothes — Stevie Wonder?',
-        'Do yourself a favor — make an appointment with a brain surgeon',
-        'Why are you always speeding? It’s not like you’ve got people holding their breath til you get there',
-        'Personally, I liked you better when you were on the cover of “Mad magazine”',
-        'Don’t look now, but something died on your head',
-        'Let’s face it -- you put the “suck” in “success”'
-    ])[i]) <> 'a'
-) FROM generate_series(1, 6) AS i;
+    ins_flip('drickles', body) <> 'a'
+) FROM unnest(ARRAY[
+    'Who picks your clothes — Stevie Wonder?',
+    'Do yourself a favor — make an appointment with a brain surgeon',
+    'Why are you always speeding? It’s not like you’ve got people holding their breath til you get there',
+    'Personally, I liked you better when you were on the cover of “Mad magazine”',
+    'Don’t look now, but something died on your head',
+    'Let’s face it -- you put the “suck” in “success”'
+]) AS body;
 
--- Fixtures stuff.
+-- -- Fixtures stuff.
 -- SELECT add_fids('k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u');
 -- -- Lots of Marx.
 -- SELECT ok(
---     ins_flip('gmarx', (ARRAY[
+--     ins_flip('gmarx', body) <> 'a'
+-- ) FROM unnest(ARRAY[
 --         'You’ve got the brain of a four-year-old boy, and I bet he was glad to get rid of it.',
 --         'Why don’t you bore a hole in yourself and let the sap run out?',
 --         'Either you’re dead or my watch has stopped.',
@@ -154,9 +155,7 @@ SELECT ok(
 --         'You know I could rent you out as a decoy for duck hunters?',
 --         'Do you think I could buy back my introduction to you?',
 --         'I never forget a face, but in your case I’ll make an exception.'
---     ])[i]) <> 'a'
--- ) FROM generate_series(1, 5) AS i;
-
+-- ]) AS body;
 -- COPY flips to STDOUT CSV;
 -- COPY(SELECT id, nickname, body, timestamp, NULL FROM flips) TO STDOUT CSV;
 

@@ -54,7 +54,7 @@ CREATE OR REPLACE FUNCTION add_fids(
     ALTER SEQUENCE fidseq RESTART;
     DELETE FROM fids;
     INSERT INTO fids (fid)
-    SELECT $1[i] FROM generate_series(1, array_upper($1, 1)) AS i
+    SELECT n FROM unnest($1) AS n;
 $$;
 
 CREATE OR REPLACE FUNCTION mock.clock_timestamp(
