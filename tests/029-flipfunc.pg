@@ -62,12 +62,13 @@ CREATE OR REPLACE FUNCTION mock.clock_timestamp(
     SELECT '2010-07-19 11:01:03.306399+00'::timestamptz;
 $$;
 
+SET search_path = mock,public,tap,pg_catalog;
+
 SELECT ins_user('jrivers', '****');
 
 SELECT is( COUNT(*)::int, 0, 'Should be no flips')
   FROM flips;
 
-SET search_path = mock,public,tap,pg_catalog;
 SELECT is(
     ins_flip(
         'jrivers',

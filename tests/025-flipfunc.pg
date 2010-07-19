@@ -33,12 +33,13 @@ CREATE OR REPLACE FUNCTION mock.get_random_string(
     SELECT 'a'::text;
 $$;
 
+SET search_path = mock,public,tap,pg_catalog;
+
 SELECT ins_user('jrivers', '****');
 
 SELECT is( COUNT(*)::int, 0, 'Should be no flips')
   FROM flips;
 
-SET search_path = mock,public,tap,pg_catalog;
 SELECT is(
     ins_flip(
         'jrivers',
